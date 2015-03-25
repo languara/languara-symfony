@@ -4,6 +4,7 @@ namespace Languara\SymfonyBundle\Wrapper;
 
 class LanguaraWrapper extends \Languara\Library\Lib_Languara
 {    
+    static $app_dir_path;
     public static function get_instance($app_dir_path = null)
     {        
         static $instance = null;
@@ -11,6 +12,7 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
                 
         if ($app_dir_path)
         {
+            static::$app_dir_path = $app_dir_path;
             $instance->language_location = $app_dir_path . $instance->language_location;
         }
         
@@ -53,7 +55,7 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
         }
         catch(\Exception $e){}
         
-        $this->language_location = (isset($config['language_location'])) ? $config['language_location'] : null;
+        $this->language_location = (isset($config['language_location'])) ? static::$app_dir_path . $config['language_location'] : null;
         $this->conf = (isset($config['conf'])) ? $config['conf'] : null;
     }
     
