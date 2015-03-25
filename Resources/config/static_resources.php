@@ -19,7 +19,7 @@ return array(
   'project_config' => '/config/languara.php',
   'static_resources' => '/config/static_resources.php',
 ),
-"origin_site"  => "https://local.languara.com/",
+"origin_site"  => "https://languara.com/",
 "platform" => "Symfony",
 "messages" => array(
     // error messages
