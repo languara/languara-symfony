@@ -5,8 +5,11 @@ use Symfony\Component\Routing\Route;
 
 $collection = new RouteCollection();
 
-$collection->add('languara_symfony_homepage', new Route('/hello/{name}', array(
-    '_controller' => 'LanguaraSymfonyBundle:Default:index',
+$collection->add('languara_pull', new Route('/languara/pull', array(
+    '_controller' => 'LanguaraSymfonyBundle:Languara:pull',
+)));
+$collection->add('languara_push', new Route('/languara/push', array(
+    '_controller' => 'LanguaraSymfonyBundle:Languara:push',
 )));
 
 return $collection;
