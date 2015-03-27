@@ -4,6 +4,7 @@
     "homepage": "https://languara.com/localization/symfony",
     "description": "Languara localization plugin for Symfony 2.x. Easily upload, translate, and synchronize your language content using Languara's Cloud Based Translation Management Platform.",
     "license": "MIT",
+    "type" : "library",
     "authors": [
         {
             "name": "Languara Development Team",
