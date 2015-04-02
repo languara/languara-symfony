@@ -20,6 +20,8 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
     }
     protected function __construct()
     {
+        parent::__construct();
+        
         $config = array();
         
         try
