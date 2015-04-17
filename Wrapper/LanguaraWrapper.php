@@ -14,12 +14,15 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
         {
             static::$app_dir_path = $app_dir_path;
             $instance->language_location = $app_dir_path . $instance->language_location;
+            $instance->driver->set_language_location($instance->language_location);
         }
         
         return $instance;
     }
-    protected function __construct()
+    public function __construct()
     {
+        parent::__construct();
+        
         $config = array();
         
         try
@@ -36,6 +39,8 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
         $this->origin_site = $static_resources['origin_site'];
         $this->config_files = $static_resources['config_files'];
         $this->platform = $static_resources['platform'];
+        $this->driver = new \Languara\SymfonyBundle\Driver\SymfonyResourceGroupDriver();        
+        $this->driver->set_storage_engine($this->conf['storage_engine']);
         
         // change config files to have absoluth paths
         if (is_array($this->config_files))
@@ -59,74 +64,39 @@ class LanguaraWrapper extends \Languara\Library\Lib_Languara
         $this->conf = (isset($config['conf'])) ? $config['conf'] : null;
     }
     
-    protected function retrieve_local_translations()
+    protected function retrieve_resource_groups_and_locales()
 	{
-		// get local locales, resource groups, and translations
-		$dir_iterator = new \DirectoryIterator($this->language_location);		
-		$arr_locales = array();
-		
-		foreach ($dir_iterator as $file)
-		{	
-			// skip the system files for navigation and language_backup directory
-			if($file->getFilename() != '.' && $file->getFilename() != '..' && $file->getFilename() != 'language_backup')
-			{
-				if (! $file->isDir())
-				{                                     
-                    $lang = include ($file->getRealPath());
-
-                    if (! isset($lang)) continue;
-                    
-                    // the name of the files in symfony is resource_group.locale_name_eng,
-                    // we need to explode the name and get the parts
-                    
-                    $arr_filename_parts     = explode('.', $file->getFilename());
-					$resource_group_name    = $arr_filename_parts[0];
-                    $locale                 = $arr_filename_parts[1];
-                    
-                    // count resource groups and translations
-                    if (! isset($this->resource_groups[$resource_group_name])) $this->resource_groups[$resource_group_name] = $resource_group_name;
-                    $this->translations_count += count($lang);
-
-                    // validate resource_cd
-                    foreach ($lang as $resource_cd => $translation)
-                    {
-                        if (! $this->validate_resource_code($resource_cd) && ! isset($this->invalid_resource_cds[$resource_cd])) 
-                            $this->invalid_resource_cds[$resource_cd] = array('resource_cd' => $resource_cd, 'resource_group_name' => $resource_group_name);
-                    }
-                    
-					$arr_locales[$locale][$resource_group_name] = $lang;
-				}
-			}
-		}
+        $arr_data = array();
+        $arr_data['files'] = array();
+        $iterator = new \FilesystemIterator($this->language_location);
+        $extension = null;
         
-        return $arr_locales;
+        switch ($this->conf['storage_engine'])
+        {
+            case 'php_array':
+                $extension = 'php';
+                break;
+            
+            case 'yaml':
+                $extension = 'yml';
+                break;
+            case 'xliff':
+                $extension = 'xml';
+                break;
+            default:
+                throw new \Exception($this->get_message_text('error_storage_engine'));
+        }
+        
+        $filter = new \RegexIterator($iterator, '/.('. $extension .')$/');
+        
+        foreach($filter as $file) 
+        {
+            $name = $file->getBasename('.'. $extension);
+            list($resource_group, $locale) = explode('.', $name);
+            
+            $arr_data[$locale][$resource_group] = array('resource_group_name' => $resource_group, 'file_path' => $file->getPathname());
+        }
+        
+        return $arr_data;
 	}
-    
-    protected function add_translations_to_files()
-    {
-        // process locale
-		foreach ($this->arr_project_locales as $project_locale) 
-		{			
-			// process translations
-			foreach ($this->arr_resource_groups as $resource_group)
-			{
-                
-				$resource_group_file_contents = $this->get_file_header();
-				foreach ($this->arr_translations as $translation) 
-				{					
-					if ($translation->resource_group_id == $resource_group->resource_group_id && $project_locale->locale_id == $translation->locale_id)
-					{						
-						$resource_group_file_contents .= $this->get_file_content($translation->resource_cd, $translation->translation_txt);
-					}
-				}
-                
-                $resource_group_file_contents .= $this->get_file_footer();
-                
-                $file_path = $this->language_location . strtolower($this->conf['file_prefix'] . $resource_group->resource_group_name .'.'. $project_locale->iso_639_1 . $this->conf['file_suffix'] .'.php');
-                
-				file_put_contents($file_path, $resource_group_file_contents);
-                chmod($file_path, 0777);
-			}
-		}	
-    }
 }
