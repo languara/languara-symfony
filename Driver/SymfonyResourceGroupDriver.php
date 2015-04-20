@@ -30,7 +30,9 @@ class SymfonyResourceGroupDriver implements ResourceGroupDriverInterface
                 return 'error_storage_engine';
         }
         
-        return current($loader->load($file_path, $lang_name, $resource_group_name)->all());
+        $unique_domain = $resource_group_name .'.'. $lang_name;
+        
+        return current($loader->load($file_path, $lang_name, $unique_domain)->all());
     }
 
     public function save($resource_group_name, $arr_translations, $lang_name = null, $file_path = null)
