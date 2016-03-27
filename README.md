@@ -3,7 +3,7 @@ Languara Plugin for Symfony 2.x
 
 <h3>Install</h3>
 
-Add languara plugin information to your composer.json file:
+Add Languara plugin information to your composer.json file:
 
 <pre><code>
 "require": {
