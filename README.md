@@ -7,7 +7,7 @@ Add Languara plugin information to your composer.json file:
 
 <pre><code>
 "require": {
-  "languara/symfony": "1.0.*@dev"
+    "languara/symfony": "1.0.*@dev"
 }
 </code></pre>
 
@@ -17,17 +17,17 @@ Use composer to install this package.
 $ composer update
 </code></pre>
 
-<h3>Register the pakcage</h3>
+<h3>Register the package</h3>
 
 Add the package to the autoload array in app/AppKernel.php:
 
 <pre><code>
 public function registerBundles()
 {
-  $bundles = array(
-    // .....
-    new Languara\SymfonyBundle\LanguaraSymfonyBundle(),
-  )
+    $bundles = array(
+        // .....
+        new Languara\SymfonyBundle\LanguaraSymfonyBundle(),
+    )
 }
 </pre></code>
 
@@ -71,3 +71,20 @@ $ php app/console languara:register
 </code></pre>
 
 to register a new user on languara.com
+
+<h3>Troubleshooting</h3>
+
+Some version of the Symfony framework come with the "platform" field set to php version 5.3.9.
+This plugin requires php version >=5.5, so in your composer.json file find this code:
+
+<pre><code>
+"config": {
+    "bin-dir": "bin",
+    "platform": {
+        "php": "5.3.9"
+    }
+},
+
+</code></pre>
+
+and just remove the "platform" property and it's value from the composer.json
